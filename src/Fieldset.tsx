@@ -66,7 +66,7 @@ export default function Fieldset<TFieldValues extends FieldValues = FieldValues>
                             </fieldset>
                         ))}
                         <button className="ml-2 mt-1 block border border-gray-200 hover:enabled:bg-gray-50 hover:enabled:border-gray-400 disabled:bg-gray-100 disabled:text-gray-400 p-1 rounded" type="button" onClick={() => append({} as FieldArray<TFieldValues, ArrayPath<TFieldValues>>)}>
-                            Add
+                            {`Add '${legend}'`}
                         </button>
                     </div>
                 }

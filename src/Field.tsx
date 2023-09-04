@@ -46,7 +46,7 @@ export default function Field<TFieldValues extends FieldValues = FieldValues>
                                     </button>
                                 </div>
                             )}
-                            <button className="mt-1 ml-2 block border border-gray-200 hover:enabled:bg-gray-50 hover:enabled::border-gray-400 disabled:bg-gray-100 disabled:text-gray-400 p-1 rounded" type="button" onClick={() => append(null as FieldArray<TFieldValues, ArrayPath<TFieldValues>>)}>Add</button>
+                            <button className="mt-1 ml-2 block border border-gray-200 hover:enabled:bg-gray-50 hover:enabled::border-gray-400 disabled:bg-gray-100 disabled:text-gray-400 p-1 rounded" type="button" onClick={() => append(null as FieldArray<TFieldValues, ArrayPath<TFieldValues>>)}>{`Add '${label}'`}</button>
                         </div>
                     </div >
                 }
@@ -54,7 +54,7 @@ export default function Field<TFieldValues extends FieldValues = FieldValues>
         )
     return (
         <div className='flex items-baseline mt-2'>
-            <label htmlFor={path}>{label}</label>
+            <label className='shrink-0' htmlFor={path}>{label}</label>
             {children({ ...field, name: path, enabled })}
         </div>
     )
