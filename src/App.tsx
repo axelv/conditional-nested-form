@@ -1,8 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Fieldset, { TFieldset } from './Fieldset'
 import { useForm } from 'react-hook-form'
 import MarkdownEditor from './MarkdownEditor'
 import RichtextEditor from "./RichTextEditor"
+import { Editor } from '@monaco-editor/react'
+import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
+import { default as yaml } from "js-yaml"
 
 const FIELDSET: TFieldset[] = [
   {
@@ -63,19 +66,74 @@ const FIELDSET: TFieldset[] = [
         ]
       },
       {
+        legend: 'Professional',
+        templates: [
+          {
+            legend: 'Doctor',
+            fields: [
+              {
+                label: 'Specialism',
+                type: 'text',
+                placeholder: 'specialism',
+              },
+              {
+                label: 'RIZIV-Number',
+                type: 'text',
+                placeholder: 'RIZIV-Number',
+              },
+            ],
+          },
+          {
+            legend: 'Nurse',
+            fields: [
+              {
+                label: 'Department',
+                type: 'text',
+                placeholder: 'department',
+              },
+              {
+                label: 'Ancienity',
+                type: 'number',
+                placeholder: 'ancienity',
+              },
+            ],
+          }
+        ],
+      },
+      {
         repeating: true,
         legend: 'Telecom',
-        fields: [
+        templates: [
           {
-            label: 'Email',
-            type: 'text',
-            placeholder: 'Email',
+            legend: 'Telecom',
+            fields: [
+              {
+                label: 'Email',
+                type: 'text',
+                placeholder: 'Email',
+              },
+              {
+                label: 'Phone',
+                type: 'text',
+                placeholder: 'Phone',
+              },
+            ],
           },
           {
-            label: 'Phone',
-            type: 'text',
-            placeholder: 'Phone',
-          },
+            legend: 'Social Media',
+            fields: [
+              {
+                label: 'Twitter',
+                type: 'text',
+                placeholder: 'Twitter',
+              },
+              {
+                label: 'Facebook',
+                type: 'text',
+                placeholder: 'Facebook',
+              },
+            ],
+          }
         ],
       }
     ]
@@ -83,17 +141,29 @@ const FIELDSET: TFieldset[] = [
 ]
 
 function App() {
-  const [data, setData] = useState({})
-  const { register, unregister, control, handleSubmit, watch } = useForm()
+  const [definition, setDefinition] = useState(FIELDSET)
 
+  const handleDefinitionUpdate = (value: string | undefined) => {
+    try {
+      if (!value) return
+      const parsed = yaml.load(value) as TFieldset[]
+      setDefinition(parsed)
+    } catch (e) {
+      console.error(e)
+    }
+  }
+  const [data, setData] = useState({})
+  const { register, unregister, control, setValue, handleSubmit, watch, resetField, reset } = useForm()
+  useEffect(() => {
+    reset()
+  }, [definition, reset])
   return (
-    <main className='ml-10 max-w-lg'>
+    <main className='ml-10 w-screen relative overflow-x-hidden'>
       <h1 className='text-lg font-medium'>Form with nested fields and conditional enabled fields</h1>
-      <form onSubmit={handleSubmit(setData)} >
-        {FIELDSET.map((fieldset) => (
-          <Fieldset key={fieldset.legend} watch={watch} control={control} {...fieldset}  >
+      <form onSubmit={handleSubmit(setData)} className='max-w-lg'>
+        {definition.map((fieldset) => (
+          <Fieldset key={fieldset.legend} form={{ watch, control, setValue, resetField }} {...fieldset}  >
             {({ name, type, defaultValue, placeholder, options, enabled }) => {
-              console.log("render field", name)
               switch (type) {
                 case 'select':
                   return (
@@ -133,16 +203,28 @@ function App() {
         </div>
       </form>
 
-      <div className='flex gap-x-4 pt-4 mt-4 border-t border-gray-100'>
-        <div>
+      <PanelGroup direction="horizontal" className='w-full pt-4 mt-4 border-t border-gray-100'>
+        <Panel defaultSize={50} minSize={20}>
           <h6 className='font-medium'>Form Definition</h6>
-          <pre className='mt-4 text-xs'>{JSON.stringify(FIELDSET, null, 2)}</pre>
-        </div>
-        <div>
+          <Editor
+            height="800px"
+            language="yaml"
+            theme="vs-light"
+            value={yaml.dump(definition, { indent: 4, skipInvalid: true })}
+            onChange={handleDefinitionUpdate}
+            options={{
+              fontSize: 12,
+              formatOnType: true,
+              autoClosingBrackets: "languageDefined",
+            }}
+          />
+        </Panel>
+        <PanelResizeHandle />
+        <Panel defaultSize={50} minSize={20}>
           <h6 className='font-medium'>Form Data</h6>
           <pre className='mt-4 text-xs'>{JSON.stringify(data, null, 2)}</pre>
-        </div>
-      </div>
+        </Panel>
+      </PanelGroup>
     </main >
   )
 }

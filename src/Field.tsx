@@ -1,6 +1,6 @@
 import React from 'react';
 import { EnabledWhen, useEnabled } from './useEnabled';
-import { FieldValues, UseFormWatch, FieldArrayPath, Control, ArrayPath, FieldArray } from 'react-hook-form';
+import { FieldValues, UseFormWatch, FieldArrayPath, Control, ArrayPath, FieldArray, UseFormSetValue, UseFormResetField } from 'react-hook-form';
 import useFieldPath from './useFieldPath';
 import { FieldArray as RenderFieldArray } from './FieldArray';
 
@@ -16,19 +16,24 @@ export type TField = {
 }
 
 type FieldProps<TFieldValues extends FieldValues = FieldValues> = TField & {
-    control: Control<TFieldValues>
-    watch: UseFormWatch<TFieldValues>
+    form: {
+        watch: UseFormWatch<TFieldValues>
+        control: Control<TFieldValues>
+        setValue: UseFormSetValue<FieldValues>
+        resetField: UseFormResetField<FieldValues>
+    }
     children: (args: TField & { name: string, enabled: boolean }) => React.ReactNode
 }
 
 export default function Field<TFieldValues extends FieldValues = FieldValues>
-    ({ children, repeating, watch, control, ...field }: FieldProps<TFieldValues>) {
+    ({ children, repeating, form, ...field }: FieldProps<TFieldValues>) {
     const { label, enabledWhen, defaultEnabled } = field;
     const path = useFieldPath(label);
-    const enabled = useEnabled(watch, enabledWhen, defaultEnabled);
+    const enabled = useEnabled(form.watch, enabledWhen, defaultEnabled);
+    console.log("Render field", path)
     if (repeating)
         return (
-            <RenderFieldArray name={path as FieldArrayPath<TFieldValues>} control={control}>
+            <RenderFieldArray name={path as FieldArrayPath<TFieldValues>} control={form.control}>
                 {({ fields, append, remove }) =>
                     <div className='flex items-baseline mt-2'>
                         <label htmlFor={path}>{label}</label>

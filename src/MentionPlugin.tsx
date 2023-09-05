@@ -14,11 +14,12 @@ import {
     useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { $getNodeByKey, TextNode } from 'lexical';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 
 import { $createMentionNode, MentionNode, SerializedMentionNode } from './MentionNode';
 import { Control, Controller, FieldValues, Path, PathValue } from 'react-hook-form';
+import { PathPrefixContext } from './PathPrefix';
 
 const PUNCTUATION =
     '\\.,\\+\\*\\?\\$\\@\\|#{}\\(\\)\\^\\-\\[\\]\\\\/!%\'"~=<>_:;';
@@ -638,6 +639,7 @@ type MentionPluginProps<TFieldValues extends FieldValues> = {
 export default function MentionPlugin<TFieldValues extends FieldValues>({ control }: MentionPluginProps<TFieldValues>): JSX.Element | null {
     const [editor] = useLexicalComposerContext();
     const [queryString, setQueryString] = useState<string | null>(null);
+    const prefix = useContext(PathPrefixContext)
     const [mentions, setMentions] = useState<Array<SerializedMentionNode & { key: string }>>([]);
 
     useEffect(() => {
@@ -724,7 +726,7 @@ export default function MentionPlugin<TFieldValues extends FieldValues>({ contro
                 <legend>Mentions</legend>
                 {control && mentions.map((node) => <Controller
                     key={node.key}
-                    name={node.id as Path<TFieldValues>}
+                    name={createPath(prefix, node.id) as Path<TFieldValues>}
                     control={control}
                     shouldUnregister={true}
                     defaultValue={{ mention: node.text } as PathValue<TFieldValues, Path<TFieldValues>>}
@@ -768,4 +770,8 @@ export default function MentionPlugin<TFieldValues extends FieldValues>({ contro
             />
         </>
     );
+}
+
+function createPath(prefix: string, id: string) {
+    return prefix ? `${prefix}.${id}` : id
 }
