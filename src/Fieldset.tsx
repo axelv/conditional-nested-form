@@ -79,7 +79,7 @@ function RepeatingSimpleFieldset<TFieldValues extends FieldValues = FieldValues>
                         </PathPrefixContext.Provider>
                     ) : fields.map((field, index) => (
                         <PathPrefixContext.Provider value={`${path}.${index}`}>
-                            <RenderBaseFieldset key={field.id} form={form} onRemove={() => remove(index)} {...other as BaseFieldset}>
+                            <RenderBaseFieldset key={field.id} form={form} onRemove={() => remove(index)} {...other as BaseFieldset} legend={`${other.legend} ${index}`}>
                                 {children}
                             </RenderBaseFieldset>
                         </PathPrefixContext.Provider>
@@ -103,11 +103,11 @@ function TemplateFieldset<TFieldValues extends FieldValues = FieldValues>
     const matchingTemplate = templates.find((template) => template.legend == form.watch<any>(`${path}.legend`))
     return (
         <PathPrefixContext.Provider value={path}>
-            {matchingTemplate ?
-                <RenderBaseFieldset form={form} onRemove={() => form.resetField(path)} {...matchingTemplate}>{children}</RenderBaseFieldset> :
-                <fieldset className="relative border-l-2 border-gray-200 mt-4 ml-2 pl-2">
-                    <div className="absolute -left-[4px] -top-3 bg-gray-200 rounded-full w-1.5 h-1.5" />
-                    <legend className="font-medium">{legend}</legend>
+            <fieldset className="relative border-l-2 border-gray-200 mt-4 ml-2 pl-2">
+                <div className="absolute -left-[4px] -top-3 bg-gray-200 rounded-full w-1.5 h-1.5" />
+                <legend className="font-medium">{legend}</legend>
+                {matchingTemplate ?
+                    <RenderBaseFieldset form={form} onRemove={() => form.resetField(path)} {...matchingTemplate}>{children}</RenderBaseFieldset> :
                     <div className="flex">
                         {templates.map((template) => (
                             <button
@@ -119,8 +119,8 @@ function TemplateFieldset<TFieldValues extends FieldValues = FieldValues>
                             </button>
                         ))}
                     </div>
-                </fieldset>
-            }
+                }
+            </fieldset>
         </PathPrefixContext.Provider >
     )
 }

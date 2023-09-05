@@ -3,9 +3,9 @@ import Fieldset, { TFieldset } from './Fieldset'
 import { useForm } from 'react-hook-form'
 import MarkdownEditor from './MarkdownEditor'
 import RichtextEditor from "./RichTextEditor"
-import { Editor } from '@monaco-editor/react'
 import { Panel, PanelGroup, PanelResizeHandle } from 'react-resizable-panels'
 import { default as yaml } from "js-yaml"
+import CodeEditor from './CodeEditor'
 
 const FIELDSET: TFieldset[] = [
   {
@@ -37,6 +37,7 @@ const FIELDSET: TFieldset[] = [
     },
     fieldsets: [
       {
+        repeating: true,
         legend: 'Address',
         fields: [
           {
@@ -55,12 +56,12 @@ const FIELDSET: TFieldset[] = [
             ]
           },
           {
-            label: "Rich Text",
+            label: "Ziektespecifieke voorgeschiedenis",
             type: "markdown"
           },
           {
             repeating: true,
-            label: "Markdown",
+            label: "Familiale voorgeschiedenis",
             type: "markdown"
           }
         ]
@@ -206,18 +207,7 @@ function App() {
       <PanelGroup direction="horizontal" className='w-full pt-4 mt-4 border-t border-gray-100'>
         <Panel defaultSize={50} minSize={20}>
           <h6 className='font-medium'>Form Definition</h6>
-          <Editor
-            height="800px"
-            language="yaml"
-            theme="vs-light"
-            value={yaml.dump(definition, { indent: 4, skipInvalid: true })}
-            onChange={handleDefinitionUpdate}
-            options={{
-              fontSize: 12,
-              formatOnType: true,
-              autoClosingBrackets: "languageDefined",
-            }}
-          />
+          <CodeEditor value={yaml.dump(definition, { indent: 4, skipInvalid: true })} onChange={handleDefinitionUpdate} />
         </Panel>
         <PanelResizeHandle />
         <Panel defaultSize={50} minSize={20}>
